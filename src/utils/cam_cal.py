@@ -58,30 +58,3 @@ def calibrate_camera(cols, rows, images_folder, images_regex, show_progress=Fals
 # helper to undistort images
 def undistort_image(input_img, imtx, idist):
     return cv2.undistort(input_img, imtx, idist, None, imtx)
-
-
-def get_aoi_src_dst(img):
-    ys = img.shape[0]
-    xs = img.shape[1]
-    """
-    corners:
-       sb ---- sc      db ----- dc
-       |        |       |       |
-      |          |      |       |
-     |            |     |       |
-     a ---------- d     a ----- d    
-          src              dst
-    """
-    xmid = xs * AOI_XMID
-    ymid = ys * AOI_YMID
-    upsz = ys * AOI_UPSZ
-    basesz = xs * AOI_BASESZ
-    a = (xmid - basesz, ys)
-    sb = (xmid - upsz, ymid)
-    sc = (xmid + upsz, ymid)
-    db = (xmid - basesz, 0)
-    dc = (xmid + basesz, 0)
-    d = (xmid + basesz, ys)
-    src = np.float32([[a, sb, sc, d]])
-    dst = np.float32([[a, db, dc, d]])
-    return src, dst

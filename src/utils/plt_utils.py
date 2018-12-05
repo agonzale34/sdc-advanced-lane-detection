@@ -16,13 +16,13 @@ def visualize_result(original, result, gray=False):
 
 def visualize_result4(img1, img2, img3, img4):
     f, (ax1, ax2) = plt.subplots(2, 2, figsize=(20, 10))
-    ax1[0].imshow(img1)
-    ax1[0].set_title('Image 1', fontsize=30)
-    ax2[0].imshow(img2)
-    ax2[0].set_title('Image 2', fontsize=30)
-    ax1[1].imshow(img3)
-    ax1[1].set_title('Image 3', fontsize=30)
-    ax2[1].imshow(img4)
-    ax2[1].set_title('Image 4', fontsize=30)
+    ax1[0].imshow(img1[0])
+    ax1[0].set_title(img1[1], fontsize=30)
+    ax2[0].imshow(img2[0])
+    ax2[0].set_title(img2[1], fontsize=30)
+    ax1[1].imshow(img3[0])
+    ax1[1].set_title(img3[1], fontsize=30)
+    ax2[1].imshow(img4[0])
+    ax2[1].set_title(img4[1], fontsize=30)
     plt.show()
 
