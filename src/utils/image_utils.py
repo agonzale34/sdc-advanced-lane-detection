@@ -55,3 +55,7 @@ def bird_eye_transform(image, src, dst):
     m = cv2.getPerspectiveTransform(src, dst)
     warped = cv2.warpPerspective(image, m, img_size, flags=cv2.INTER_LINEAR)
     return warped
+
+
+# Function to fine the lines in the bird eye view image
+# def find_lane_lines(binary_warped):
