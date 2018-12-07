@@ -1,6 +1,8 @@
 import numpy as np
 import cv2
 
+from src.models.line import Line
+
 
 def grayscale(image):
     # create a copy to work locally
@@ -53,9 +55,26 @@ def advanced_transform(img, kernel_size=3, s_thresh=(170, 255), sx_thresh=(20, 1
 def bird_eye_transform(image, src, dst):
     img_size = (image.shape[1], image.shape[0])
     m = cv2.getPerspectiveTransform(src, dst)
+    minv = cv2.getPerspectiveTransform(dst, src)
     warped = cv2.warpPerspective(image, m, img_size, flags=cv2.INTER_LINEAR)
-    return warped
+    return warped, minv
 
 
-# Function to fine the lines in the bird eye view image
-# def find_lane_lines(binary_warped):
+def draw_final_lines(img_warped, p_matrix, img_un_dist, left_lane: Line, right_lane: Line, offset):
+    # Create an image to draw the lines on
+    warp_zero = np.zeros_like(img_warped).astype(np.uint8)
+    color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
+
+    # Recast the x and y points into usable format for cv2.fillPoly()
+    pts_left = np.array([np.transpose(np.vstack([left_lane.allx, left_lane.ally]))])
+    pts_right = np.array([np.flipud(np.transpose(np.vstack([right_lane.allx, right_lane.ally])))])
+    pts = np.hstack((pts_left, pts_right))
+
+    # Draw the lane onto the warped blank image
+    cv2.fillPoly(color_warp, np.int_([pts]), (0, 255, 0))
+
+    # Warp the blank back to original image space using inverse perspective matrix (p_matrix)
+    newwarp = cv2.warpPerspective(color_warp, p_matrix, (img_un_dist.shape[1], img_un_dist.shape[0]))
+
+    # Combine the result with the original image
+    return cv2.addWeighted(img_un_dist, 1, newwarp, 0.3, 0)
