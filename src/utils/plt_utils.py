@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 
 # helper to show 2 images next to each other
-def visualize_result(original, result, gray=False):
+def visualize_result(original, result, gray=False, show=True):
     f, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 10))
     ax1.imshow(original)
     ax1.set_title('Original Image', fontsize=30)
@@ -11,7 +11,8 @@ def visualize_result(original, result, gray=False):
     else:
         ax2.imshow(result)
     ax2.set_title('Result Image', fontsize=30)
-    plt.show()
+    if show:
+        plt.show()
 
 
 def visualize_result4(img1, img2, img3, img4):

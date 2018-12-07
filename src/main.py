@@ -12,30 +12,31 @@ def process_image(p_image):
     The goals / steps of this project are the following:
     * Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
     * Apply a distortion correction to raw images.
-    * Use color transforms, gradients, etc., to create a thresholded binary image.
+    * Use color transforms, gradients, etc., to create a threshold binary image.
     * Apply a perspective transform to rectify binary image ("birds-eye view").
     * Detect lane pixels and fit to find the lane boundary.
     * Determine the curvature of the lane and vehicle position with respect to center.
     * Warp the detected lane boundaries back onto the original image.
     * Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
     """
+    # 1. Un-distort the image to get better measure
     un_dist = undistort_image(p_image, settings.mtx, settings.dist)
-    # Apply the advanced transform to get the final image
+    # 2. Apply the advanced transform to get the final image
     img_adv = advanced_transform(
         un_dist, kernel_size=KERNEL_SIZE, s_thresh=S_CHANNEL_THRESH, sx_thresh=SOBEL_X_THRESH
     )
-    # Get the bird eye view
+    # 3. Get the bird eye view and the invert transform matrix
     binary_warped, minv = bird_eye_transform(img_adv, settings.aoi_src, settings.bird_dst)
-    # find the lane lines in the bird eye view
+    # 4. Find the lane lines in the bird eye view, determine the curvature of the lane and vehicle position
     left_lane, right_line, offset = find_lane_lines_sliding_windows(np.copy(binary_warped))
-    # Draw the lines in the un-distorted image
+    # 5. Draw the lines in the un-distorted image
     result = draw_final_lines(binary_warped, minv, un_dist, left_lane, right_line, offset)
     return result
 
 
-# testing the pipeline
+# Calibrating the camera
 cam_cal_path = '../resources/camera_cal/'
-# 1. calibrate the camera
+# Run the next command the first time
 # mtx, dist = calibrate_camera(9, 6, cam_cal_path, 'cali*.jpg')
 # Read in the saved mtx and dist
 pickle = pickle.load(open(cam_cal_path + CC_FILE, 'rb'))
