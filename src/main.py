@@ -4,6 +4,7 @@ from moviepy.editor import VideoFileClip
 from src.utils.cam_cal import *
 from src.utils.image_utils import *
 from src.utils.lane_lines import *
+from src.utils.env import settings
 
 
 def process_image(p_image):
@@ -28,10 +29,20 @@ def process_image(p_image):
     # 3. Get the bird eye view and the invert transform matrix
     binary_warped, minv = bird_eye_transform(img_adv, settings.aoi_src, settings.bird_dst)
     # 4. Find the lane lines in the bird eye view, determine the curvature of the lane and vehicle position
-    left_lane, right_line, offset = find_lane_lines_sliding_windows(np.copy(binary_warped))
+    find_lane_lines(binary_warped)
     # 5. Draw the lines in the un-distorted image
-    result = draw_final_lines(binary_warped, minv, un_dist, left_lane, right_line, offset)
+    result = draw_final_lines(
+        binary_warped, minv, un_dist, settings.left_glines, settings.right_glines, settings.offset)
     return result
+
+
+def process_video(video, video_out, total=True):
+    if total:
+        clip = VideoFileClip(video)
+    else:
+        clip = VideoFileClip(video).subclip(0, 7)
+    white_clip = clip.fl_image(process_image)  # NOTE: this function expects color images!!
+    white_clip.write_videofile(video_out, audio=False)
 
 
 # Calibrating the camera
@@ -41,12 +52,10 @@ cam_cal_path = '../resources/camera_cal/'
 # Read in the saved mtx and dist
 pickle = pickle.load(open(cam_cal_path + CC_FILE, 'rb'))
 
-settings = Settings()
-
 settings.mtx = pickle[CC_MTX]
 settings.dist = pickle[CC_DIST]
 settings.aoi_xmid = 0.511
-settings.aoi_ymid = 0.625
+settings.aoi_ymid = 0.65
 settings.aoi_upsz = 0.08
 settings.aoi_upds = 15
 settings.aoi_basesz = 0.390
@@ -54,16 +63,8 @@ settings.aoi_basesz = 0.390
 image = mpimg.imread('../resources/test_images/test2.jpg')
 # # image = mpimg.imread('../resources/test_images/straight_lines2.jpg')
 settings.find_aoi_src_dst(image)
-process_image(image)
 
-# white_output = '../resources/test_videos/project_video_out.mp4'
-white_output = '../resources/test_videos/harder_challenge_video_out.mp4'
-# To speed up the testing process you may want to try your pipeline on a shorter subclip of the video
-# To do so add .subclip(start_second,end_second) to the end of the line below
-# Where start_second and end_second are integer values representing the start and end of the subclip
-# You may also uncomment the following line for a subclip of the first 5 seconds
-# clip1 = VideoFileClip("../resources/test_videos/project_video.mp4").subclip(0,5)
-clip1 = VideoFileClip("../resources/test_videos/harder_challenge_video.mp4").subclip(0,5)
-# clip1 = VideoFileClip("test_videos/solidWhiteRight.mp4")
-white_clip = clip1.fl_image(process_image)  # NOTE: this function expects color images!!
-white_clip.write_videofile(white_output, audio=False)
+# process_video('../resources/test_videos/project_video.mp4', '../resources/output_videos/project_video.mp4', total=False)
+process_video('../resources/test_videos/challenge_video.mp4', '../resources/output_videos/challenge_video.mp4', total=False)
+
+

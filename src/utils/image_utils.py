@@ -66,8 +66,8 @@ def draw_final_lines(img_warped, p_matrix, img_un_dist, left_lane: Line, right_l
     color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
 
     # Recast the x and y points into usable format for cv2.fillPoly()
-    pts_left = np.array([np.transpose(np.vstack([left_lane.allx, left_lane.ally]))])
-    pts_right = np.array([np.flipud(np.transpose(np.vstack([right_lane.allx, right_lane.ally])))])
+    pts_left = np.array([np.transpose(np.vstack([left_lane.best_x, left_lane.ally]))])
+    pts_right = np.array([np.flipud(np.transpose(np.vstack([right_lane.best_x, right_lane.ally])))])
     pts = np.hstack((pts_left, pts_right))
 
     # Draw the lane onto the warped blank image
@@ -75,6 +75,16 @@ def draw_final_lines(img_warped, p_matrix, img_un_dist, left_lane: Line, right_l
 
     # Warp the blank back to original image space using inverse perspective matrix (p_matrix)
     newwarp = cv2.warpPerspective(color_warp, p_matrix, (img_un_dist.shape[1], img_un_dist.shape[0]))
+
+    # curvature
+    radius = int(left_lane.radius_of_curvature + right_lane.radius_of_curvature) // 2
+    radius_tx = 'Radius of Curvature = ' + str(radius) + '(m)'
+    offset_tx = 'Vehicle is ' + str(round(offset, 2)) + 'm left of center'
+
+    # add text
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    cv2.putText(img_un_dist, radius_tx, (50, 50), font, 1, (255, 255, 255), 2, cv2.LINE_AA)
+    cv2.putText(img_un_dist, offset_tx, (50, 100), font, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
     # Combine the result with the original image
     return cv2.addWeighted(img_un_dist, 1, newwarp, 0.3, 0)

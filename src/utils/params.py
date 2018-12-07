@@ -1,4 +1,3 @@
-from src.models.settings import Settings
 """
 This files contains the constants for all the process
 """
@@ -21,4 +20,4 @@ SW_MIN_PIX = 50
 YM_PER_PIX = 30 / 720  # meters per pixel in y dimension
 XM_PER_PIX = 3.7 / 700  # meters per pixel in x dimension
 
-settings = Settings()
+N_LINES = 15

@@ -40,9 +40,9 @@ img_adv = advanced_transform(
 # Get the bird eye view
 binary_warped, minv = bird_eye_transform(img_adv, settings.aoi_src, settings.bird_dst)
 
-left_lane, right_line, offset = find_lane_lines_sliding_windows(np.copy(binary_warped))
+find_lane_lines(binary_warped)
 
-result = draw_final_lines(binary_warped, minv, un_dist, left_lane, right_line, offset)
+result = draw_final_lines(binary_warped, minv, un_dist, left_glines, right_glines, left_glines.line_base_pos)
 
 visualize_result(image, result)
 

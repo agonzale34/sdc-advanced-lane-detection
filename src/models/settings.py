@@ -1,5 +1,7 @@
 import numpy as np
 
+from src.models.line import Line
+
 
 class Settings:
 
@@ -13,6 +15,9 @@ class Settings:
         self.aoi_basesz = 0.0
         self.aoi_src = None
         self.bird_dst = None
+        self.left_glines = Line()
+        self.right_glines = Line()
+        self.offset = 0
 
     def find_aoi_src_dst(self, img):
         """
