@@ -1,20 +1,19 @@
 import numpy as np
 
-from src.utils.params import *
 from src.utils.env import settings
-from src.models.line import Line
+from src.utils.params import *
 
 
 def find_lane_lines(img_binary):
     if settings.left_glines.detected & settings.right_glines.detected:
         search_around_poly(img_binary)
     else:
-        print('Using sliding windows')
         find_lane_lines_sliding_windows(img_binary)
 
 
 # To make the algorithm faster we only going to use this function the first time  or when the lane line lost
 def find_lane_lines_sliding_windows(img_binary):
+    print('Using sliding windows')
     img_binary = np.copy(img_binary)
     # Take a histogram of the bottom half of the image
     histogram = np.sum(img_binary[img_binary.shape[0] // 2:, :], axis=0)
@@ -82,8 +81,8 @@ def find_lane_lines_sliding_windows(img_binary):
     process_inds(img_binary.shape, nonzero_x, nonzero_y, left_lane_inds, right_lane_inds)
 
 
-def search_around_poly(img_binary):
-    img_binary = np.copy(img_binary)
+def search_around_poly(img_binary_in):
+    img_binary = np.copy(img_binary_in)
     # Grab activated pixels
     nonzero = img_binary.nonzero()
     nonzero_y = np.array(nonzero[0])
@@ -93,11 +92,17 @@ def search_around_poly(img_binary):
 
     # Set the area of search based on activated x-values
     # within the +/- margin of our polynomial function
-    left_lane_inds = find_pixels_around(nonzero_x, nonzero_y, settings.left_glines.current_fit, sa_margin)
-    right_lane_inds = find_pixels_around(nonzero_x, nonzero_y, settings.right_glines.current_fit, sa_margin)
+    left_lane_inds = find_pixels_around(nonzero_x, nonzero_y, settings.left_glines.best_fit, sa_margin)
+    right_lane_inds = find_pixels_around(nonzero_x, nonzero_y, settings.right_glines.best_fit, sa_margin)
 
     # Process the inds
     process_inds(img_binary.shape, nonzero_x, nonzero_y, left_lane_inds, right_lane_inds)
+
+    settings.left_glines.check_sanity()
+    settings.right_glines.check_sanity()
+
+    if settings.left_glines.detected is False or settings.right_glines.detected is False:
+        find_lane_lines_sliding_windows(img_binary_in)
 
 
 def process_inds(image_shape, nonzero_x, nonzero_y, left_lane_inds, right_lane_inds):
@@ -141,13 +146,6 @@ def process_inds(image_shape, nonzero_x, nonzero_y, left_lane_inds, right_lane_i
     settings.offset = calculate_distance_from_center(
         img_xmid, settings.left_glines.best_x[y_max], settings.right_glines.best_x[y_max]
     )
-
-    sanit_check(settings.left_glines, settings.right_glines)
-
-
-def sanit_check(left_lines: Line, right_lines: Line):
-    left_lines.detected = left_lines.check_sanity_radius() & left_lines.check_sanity_pos()
-    right_lines.detected = right_lines.check_sanity_radius() & right_lines.check_sanity_pos()
 
 
 # Fit a polynomial to all the relevant pixels you've found in your frame
@@ -194,5 +192,5 @@ def measure_curvature_real(y_eval, left_fit_cr, right_fit_cr):
 
 def calculate_distance_from_center(img_xmid, bx_left, bx_right):
     lane_center = bx_right - bx_left / 2
-    offset = (lane_center - img_xmid) * XM_PER_PIX
+    offset = (lane_center - img_xmid) * XM_PER_PIX - 1
     return offset

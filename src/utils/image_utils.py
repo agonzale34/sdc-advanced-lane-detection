@@ -77,9 +77,9 @@ def draw_final_lines(img_warped, p_matrix, img_un_dist, left_lane: Line, right_l
     newwarp = cv2.warpPerspective(color_warp, p_matrix, (img_un_dist.shape[1], img_un_dist.shape[0]))
 
     # curvature
-    radius = int(left_lane.radius_of_curvature)  # + right_lane.radius_of_curvature) // 2
+    radius = int(left_lane.best_radius + right_lane.best_radius) // 2
     radius_tx = 'Radius of Curvature = ' + str(radius) + '(m)'
-    offset_tx = 'Vehicle is ' + str(round(offset, 2)) + 'm left of center'
+    offset_tx = 'Vehicle is ' + str(round(offset, 2)) + 'm right of center'
 
     # add text
     font = cv2.FONT_HERSHEY_SIMPLEX

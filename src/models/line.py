@@ -84,8 +84,12 @@ class Line:
         else:
             self.best_radius = self.radius_of_curvature
 
-    def check_sanity_radius(self):
-        return abs(self.radius_of_curvature - self.best_radius) < 200
-
-    def check_sanity_pos(self):
-        return abs(self.line_base_pos - self.best_pos) < 1
+    def check_sanity(self):
+        if (abs(self.radius_of_curvature - self.best_radius) < 150) & (abs(self.line_base_pos - self.best_pos) < 1):
+            self.detected = True
+        else:
+            self.recent_radius.pop()
+            self.recent_pos.pop()
+            self.recent_fit.pop()
+            self.recent_x_fitted.pop()
+            self.detected = False
