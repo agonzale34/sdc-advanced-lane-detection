@@ -2,12 +2,14 @@ import numpy as np
 
 from src.utils.params import *
 from src.utils.env import settings
+from src.models.line import Line
 
 
 def find_lane_lines(img_binary):
     if settings.left_glines.detected & settings.right_glines.detected:
         search_around_poly(img_binary)
     else:
+        print('Using sliding windows')
         find_lane_lines_sliding_windows(img_binary)
 
 
@@ -90,9 +92,7 @@ def search_around_poly(img_binary):
     sa_margin = int(SW_MARGIN // 2)
 
     # Set the area of search based on activated x-values
-    # within the +/- margin of our polynomial function ###
-    # Hint: consider the window areas for the similarly named variables
-    # in the previous quiz, but change the windows to our new search area
+    # within the +/- margin of our polynomial function
     left_lane_inds = find_pixels_around(nonzero_x, nonzero_y, settings.left_glines.current_fit, sa_margin)
     right_lane_inds = find_pixels_around(nonzero_x, nonzero_y, settings.right_glines.current_fit, sa_margin)
 
@@ -116,39 +116,38 @@ def process_inds(image_shape, nonzero_x, nonzero_y, left_lane_inds, right_lane_i
     left_fit_x = left_fit[0] * ploty ** 2 + left_fit[1] * ploty + left_fit[2]
     right_fit_x = right_fit[0] * ploty ** 2 + right_fit[1] * ploty + right_fit[2]
 
-    # Calculate the polynomial in real meters
-    # left_fit_cr = np.polyfit(ploty * YM_PER_PIX, left_fit_x * XM_PER_PIX, 2)
-    # right_fit_cr = np.polyfit(ploty * YM_PER_PIX, right_fit_x * XM_PER_PIX, 2)
-
-    # Calculate the radius of curvature of the line
-    # left_curved, right_curved = measure_curvature_real(y_max, left_fit_cr, right_fit_cr)
+    # Calculate the pos
+    y_max = np.argmax(ploty)
+    img_xmid = image_shape[1] / 2
+    left_pos = (img_xmid - left_fit_x[y_max]) * XM_PER_PIX
+    right_pos = (right_fit_x[y_max] - img_xmid) * XM_PER_PIX
 
     # Create the result left lane line
     settings.left_glines.detected = True
-    # left_glines.current_fit = left_fit
     settings.left_glines.append_fit(left_fit)
-    # left_glines.radius_of_curvature = left_curved
-    # left_glines.allx = left_fit_x
     settings.left_glines.append_x_fitted(left_fit_x)
+    settings.left_glines.append_pos(left_pos)
     settings.left_glines.ally = ploty
     settings.left_glines.calculate_curvature()
 
     # Create the result right lane line
     settings.right_glines.detected = True
-    # right_glines.current_fit = right_fit
     settings.right_glines.append_fit(right_fit)
-    # right_glines.radius_of_curvature = right_curved
-    # right_glines.allx = right_fit_x
     settings.right_glines.append_x_fitted(right_fit_x)
+    settings.right_glines.append_pos(right_pos)
     settings.right_glines.ally = ploty
     settings.right_glines.calculate_curvature()
 
-    # Calculate the offset from the center
-    y_max = np.argmax(ploty)
-    offset = calculate_distance_from_center(
-        image_shape[1] // 2, settings.left_glines.best_x[y_max], settings.right_glines.best_x[y_max]
+    settings.offset = calculate_distance_from_center(
+        img_xmid, settings.left_glines.best_x[y_max], settings.right_glines.best_x[y_max]
     )
-    settings.offset = offset
+
+    sanit_check(settings.left_glines, settings.right_glines)
+
+
+def sanit_check(left_lines: Line, right_lines: Line):
+    left_lines.detected = left_lines.check_sanity_radius() & left_lines.check_sanity_pos()
+    right_lines.detected = right_lines.check_sanity_radius() & right_lines.check_sanity_pos()
 
 
 # Fit a polynomial to all the relevant pixels you've found in your frame
