@@ -191,6 +191,6 @@ def measure_curvature_real(y_eval, left_fit_cr, right_fit_cr):
 
 
 def calculate_distance_from_center(img_xmid, bx_left, bx_right):
-    lane_center = bx_right - bx_left / 2
-    offset = (lane_center - img_xmid) * XM_PER_PIX - 1
+    lane_center = bx_right - (bx_right - bx_left) / 2
+    offset = (lane_center - img_xmid) * XM_PER_PIX
     return offset

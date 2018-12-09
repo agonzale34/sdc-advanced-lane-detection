@@ -20,6 +20,6 @@ AOI_XMID_DES = 50
 
 # Define conversions in x and y from pixels space to meters
 YM_PER_PIX = 30 / 720  # meters per pixel in y dimension
-XM_PER_PIX = 3.7 / 700  # meters per pixel in x dimension
+XM_PER_PIX = 3.7 / 900  # meters per pixel in x dimension
 
 N_LINES = 6

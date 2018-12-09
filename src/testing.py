@@ -18,7 +18,7 @@ settings.aoi_upsz = 0.015
 settings.aoi_des = -35
 settings.aoi_basesz = 0.350
 
-image = mpimg.imread('../resources/test_images/test00004.jpg')
+image = mpimg.imread('../resources/test_images/test3.jpg')
 # image = mpimg.imread('../resources/test_images/straight_lines2.jpg')
 settings.find_aoi_src_dst(image)
 result = process_image(image)
