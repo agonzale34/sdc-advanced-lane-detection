@@ -134,6 +134,6 @@ My pipeline does an excellent job in the project video!
 
 ### Discussion
 
-This pipeline works great in the roads whe the line lines are enough visible and the curvatures are minimals, for the challenges videos this pipeline fails because of the shadows and the road's irregularities.
+This pipeline works great in the roads when the lane lines are enough visible and the curvatures are minimals, for the challenges videos this pipeline fails because of the shadows and the road's irregularities.
 
 To make this pipeline more robust we should to implement more color transforms that improve the lane line pixels detection.
