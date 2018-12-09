@@ -51,7 +51,7 @@ def advanced_transform(img, kernel_size=3, s_thresh=(170, 255), sx_thresh=(20, 1
     return combined_binary
 
 
-# Function that pply a perspective transform to rectify binary image ("birds-eye view")
+# Function that apply a perspective transform to rectify binary image ("birds-eye view")
 def bird_eye_transform(image, src, dst):
     img_size = (image.shape[1], image.shape[0])
     m = cv2.getPerspectiveTransform(src, dst)
