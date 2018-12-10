@@ -79,7 +79,8 @@ def draw_final_lines(img_warped, p_matrix, img_un_dist, left_lane: Line, right_l
     # curvature
     radius = int(left_lane.best_radius)
     radius_tx = 'Radius of Curvature = ' + str(radius) + '(m)'
-    offset_tx = 'Vehicle is ' + str(round(offset, 2)) + 'm right of center'
+    direction = 'left' if offset > 0 else 'right'
+    offset_tx = 'Vehicle is ' + str(abs(round(offset, 2))) + 'm ' + direction + ' of center'
 
     # add text
     font = cv2.FONT_HERSHEY_SIMPLEX

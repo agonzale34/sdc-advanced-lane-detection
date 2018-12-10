@@ -126,7 +126,7 @@ I implemented this step on the function `draw_final_lines()` in `image_uitls.py`
 ---
 
 ### Pipeline (video)
-Here's a [link to my video result](https://youtu.be/-4MII78guuA)
+Here's a [link to my video result](https://youtu.be/pxtpaQOaFA4)
 
 My pipeline does an excellent job in the project video!
 
